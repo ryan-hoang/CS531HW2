@@ -23,7 +23,8 @@ struct address_t* head = NULL;
 
 void read_in_data();
 void add_address(char* address, char* alias);
-void lookup(char* alias);
+int alias_exists(char* alias);
+int address_exists(int first, int second, int third, int fourth);
 void update_address(char* alias, char* address);
 void delete_address(char* alias);
 void display_aliases(int first, int second);
@@ -74,7 +75,7 @@ int main()
       memcpy(alias, buffer, sizeof(alias));
 
       add_address(address,alias);
-      print_nodes(head->next);
+      //print_nodes(head->next);
 
       break;
 
@@ -232,20 +233,33 @@ void print_nodes(struct address_t* head)
 
 void add_address(char* address, char* alias)
 {
-  struct address_t* node = (struct address_t*) malloc(sizeof(struct address_t));
 
   int first = 0;
   int second = 0;
   int third = 0;
   int fourth = 0;
   sscanf(address, "%d.%d.%d.%d", &first, &second, &third, &fourth);
+  removeNewline(alias);
+
+  if(alias_exists(alias))
+  {
+    printf("%s already exists.\n", alias);
+    return;
+  }
+
+  if(address_exists(first,second,third,fourth))
+  {
+    printf("%d.%d.%d.%d already exists.\n", first, second, third, fourth);
+    return;
+  }
+
+  struct address_t* node = (struct address_t*) malloc(sizeof(struct address_t));
 
   node -> first = first;
   node -> second = second;
   node -> third = third;
   node -> fourth = fourth;
 
-  removeNewline(alias);
   memcpy(node->alias, alias, sizeof(node->alias));
 
   node -> next = head -> next;
@@ -264,9 +278,37 @@ void removeNewline(char* str)
   }
 }
 
-void lookup(char* alias)
+int alias_exists(char* alias)
 {
+  struct address_t* temp = head->next;
 
+  while(temp)
+  {
+    if(strcmp(temp->alias, alias) == 0)
+    {
+      return 1;
+    }
+
+    temp = temp->next;
+  }
+
+  return 0;
+}
+
+int address_exists(int first, int second, int third, int fourth)
+{
+  struct address_t* temp = head->next;
+
+  while(temp)
+  {
+    if((temp->first == first) && (temp->second == second) && (temp->third == third) && (temp->fourth == fourth))
+    {
+      return 1;
+    }
+    temp = temp->next;
+  }
+
+  return 0;
 }
 
 void update_address(char* alias, char* address)
