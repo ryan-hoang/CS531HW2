@@ -26,11 +26,11 @@ void add_address(char* address, char* alias);
 void lookup(char* alias);
 void update_address(char* alias, char* address);
 void delete_address(char* alias);
-void display_list();
 void display_aliases(int first, int second);
 void save();
 int print_menu();
 void print_nodes(struct address_t* head);
+void removeNewline(char* str);
 
 
 
@@ -39,18 +39,43 @@ int main()
   head = (struct address_t*) malloc(sizeof(struct address_t));
 
   read_in_data();
-  print_nodes(head->next);
+
+  //print_nodes(head->next);
+
+  char buffer[100];
 
   int flag = 1;
   while(flag)
   {
     int choice = print_menu();
+    char address[100];
+    char alias[100];
 
     switch(choice)
     {
       case 1://add address
-      printf("You chose option 1\n");
-      flag = 0;
+
+      printf("Please enter an address: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+
+      memcpy(address, buffer, sizeof(address));
+
+      printf("Please enter an alias: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+
+      memcpy(alias, buffer, sizeof(alias));
+
+      add_address(address,alias);
+      print_nodes(head->next);
+
       break;
 
       case 2://lookup address
@@ -69,8 +94,8 @@ int main()
       break;
 
       case 5://display list
-      printf("You chose option 5\n");
-      flag = 0;
+      //printf("You chose option 5\n");
+      print_nodes(head->next);
       break;
 
       case 6://display aliases for location
@@ -202,11 +227,41 @@ void print_nodes(struct address_t* head)
     temp = temp->next;
     count++;
   }
+  printf("Total node count:%d\n",count);
 }
 
 void add_address(char* address, char* alias)
 {
+  struct address_t* node = (struct address_t*) malloc(sizeof(struct address_t));
 
+  int first = 0;
+  int second = 0;
+  int third = 0;
+  int fourth = 0;
+  sscanf(address, "%d.%d.%d.%d", &first, &second, &third, &fourth);
+
+  node -> first = first;
+  node -> second = second;
+  node -> third = third;
+  node -> fourth = fourth;
+
+  removeNewline(alias);
+  memcpy(node->alias, alias, sizeof(node->alias));
+
+  node -> next = head -> next;
+  head -> next = node;
+}
+
+//Strips newline characters.
+void removeNewline(char* str)
+{
+  char* position;
+  char* pos;
+
+  if((pos = strchr(str, '\n')) != NULL)
+  {
+    *pos = '\0';
+  }
 }
 
 void lookup(char* alias)
@@ -220,11 +275,6 @@ void update_address(char* alias, char* address)
 }
 
 void delete_address(char* alias)
-{
-
-}
-
-void display_list()
 {
 
 }
