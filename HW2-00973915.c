@@ -22,17 +22,19 @@ struct address_t
 struct address_t* head = NULL;
 
 //==============================Prototypes======================================
-void read_in_data();
-void add_address(char* address, char* alias);
-int alias_exists(char* alias);
+void read_in_data(); //Initialize the list of address/alias pairs
+void add_address(char* address, char* alias); //Insert an address/alias pair
+int alias_exists(char* alias);//Check if alias is already present
+
+//Check if address is already present.
 int address_exists(int first, int second, int third, int fourth);
-void lookup(char* alias);
-void update_address(char* alias);
-void delete_address(char* alias);
-void display_aliases(int first, int second);
-void save(char* filename);
-int print_menu();
-void print_nodes(struct address_t* head);
+void lookup(char* alias);//lookup the associated address for this alias
+void update_address(char* alias);//Change the associated address for this alias
+void delete_address(char* alias);//Delete address/alias pair from the list
+void display_aliases(int first, int second);//Show aliases that start with x.y
+void save(char* filename);//save the list to file
+int print_menu();//helper function to redisplay the menu for the user.
+void print_nodes(struct address_t* head);//
 void removeNewline(char* str);
 //==============================================================================
 
@@ -275,13 +277,7 @@ void print_nodes(struct address_t* head)
   int count = 0;
   while(temp != NULL)
   {
-    printf("Node #%d\n",count+1);
-    printf("First: %d\n",temp->first);
-    printf("Second: %d\n",temp->second);
-    printf("Third: %d\n",temp->third);
-    printf("Fourth: %d\n",temp->fourth);
-    printf("Alias: %s\n",temp->alias);
-    printf("============================\n");
+    printf("%d.%d.%d.%d %s\n", temp->first, temp->second, temp->third, temp->fourth, temp -> alias);
     temp = temp->next;
     count++;
   }
