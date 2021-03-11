@@ -21,6 +21,7 @@ struct address_t
 };
 struct address_t* head = NULL;
 
+//==============================Prototypes======================================
 void read_in_data();
 void add_address(char* address, char* alias);
 int alias_exists(char* alias);
@@ -33,8 +34,7 @@ void save();
 int print_menu();
 void print_nodes(struct address_t* head);
 void removeNewline(char* str);
-
-
+//==============================================================================
 
 int main()
 {
@@ -157,7 +157,7 @@ int main()
       break;
 //==============================================================================
       case 8://quit
-              printf("You chose option 8\n");
+              printf("Goodbye.\n");
               flag = 0;
       break;
 //==============================================================================
@@ -166,7 +166,6 @@ int main()
       break;
     }
   }
-
   return 0;
 }
 
@@ -489,7 +488,23 @@ void delete_address(char* alias)
 
 void display_aliases(int first, int second)
 {
-  
+  struct address_t* temp = head->next;
+
+  int flag = 0;
+
+  while(temp)
+  {
+    if(temp -> first == first && temp -> second == second)
+    {
+      printf("%d.%d.%d.%d %s\n", temp->first, temp->second, temp->third, temp->fourth, temp -> alias);
+      flag = 1;
+    }
+    temp = temp->next;
+  }
+  if(!flag)
+  {
+    printf("No locations associated with %d.%d\n", first,second);
+  }
 }
 
 void save_to_file()
