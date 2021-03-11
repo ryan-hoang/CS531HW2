@@ -30,7 +30,7 @@ void lookup(char* alias);
 void update_address(char* alias);
 void delete_address(char* alias);
 void display_aliases(int first, int second);
-void save();
+void save(char* filename);
 int print_menu();
 void print_nodes(struct address_t* head);
 void removeNewline(char* str);
@@ -152,8 +152,14 @@ int main()
       break;
 //==============================================================================
       case 7://save to file
-      printf("You chose option 7\n");
-      flag = 0;
+      printf("Enter filename: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin)))
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+      removeNewline(buffer);
+      save(buffer);
       break;
 //==============================================================================
       case 8://quit
@@ -164,6 +170,7 @@ int main()
       default: //Not an option reprompt user.
       printf("Invalid option, enter a number 1-8 to make a selection.\n");
       break;
+//==============================================================================
     }
   }
   return 0;
@@ -259,6 +266,7 @@ void read_in_data()
     temp -> next = head -> next;
     head -> next = temp;
   }
+  fclose(fp);
 }
 
 void print_nodes(struct address_t* head)
@@ -507,7 +515,24 @@ void display_aliases(int first, int second)
   }
 }
 
-void save_to_file()
+void save(char* filename)
 {
 
+  FILE *fp;
+  fp = fopen(filename, "w+");
+
+  if(!fp)
+  {
+    perror("Could not open file.\n");
+    exit(-1);
+  }
+
+  struct address_t* temp = head->next;
+  while(temp)
+  {
+    fprintf(fp,"%d.%d.%d.%d %s\n", temp->first, temp->second, temp->third, temp->fourth, temp -> alias);
+    temp = temp->next;
+  }
+  fclose(fp);
+  printf("File saved. \n");
 }
