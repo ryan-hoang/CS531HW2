@@ -1,8 +1,8 @@
 /*
 Ryan Hoang
 G00973915
-A simple program that reads in a data file with addresses and associated aliases.
-It will allow the user to add, lookup, update, delete, display the location of,
+A simple program that reads a data file with addresses and associated aliases.
+Allows the user to add, lookup, update, delete, display the location of,
 and save this data to a file.
 */
 
@@ -25,7 +25,8 @@ void read_in_data();
 void add_address(char* address, char* alias);
 int alias_exists(char* alias);
 int address_exists(int first, int second, int third, int fourth);
-void update_address(char* alias, char* address);
+void lookup(char* alias);
+void update_address(char* alias);
 void delete_address(char* alias);
 void display_aliases(int first, int second);
 void save();
@@ -52,10 +53,14 @@ int main()
     char address[100];
     char alias[100];
 
+    int first = -1; //Initialize for option 6
+    int second = -1;//Initialize for option 6
+    int* params[2]; //Initialize for option 6
+
     switch(choice)
     {
+//==============================================================================
       case 1://add address
-
       printf("Please enter an address: ");
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
@@ -73,49 +78,91 @@ int main()
       }
 
       memcpy(alias, buffer, sizeof(alias));
-
       add_address(address,alias);
-      //print_nodes(head->next);
-
       break;
-
+//==============================================================================
       case 2://lookup address
-      printf("You chose option 2\n");
-      flag = 0;
+      printf("Enter alias: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+      memcpy(alias, buffer, sizeof(alias));
+      removeNewline(alias);
+      lookup(alias);
       break;
-
+//==============================================================================
       case 3://update address
-      printf("You chose option 3\n");
-      flag = 0;
+      printf("Enter alias: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+      memcpy(alias, buffer, sizeof(alias));
+      removeNewline(alias);
+      update_address(alias);
       break;
-
+//==============================================================================
       case 4://delete address
-      printf("You chose option 4\n");
-      flag = 0;
+      printf("Enter alias: ");
+      if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+      memcpy(alias, buffer, sizeof(alias));
+      removeNewline(alias);
+      delete_address(alias);
       break;
-
+//==============================================================================
       case 5://display list
-      //printf("You chose option 5\n");
       print_nodes(head->next);
       break;
-
+//==============================================================================
       case 6://display aliases for location
-      printf("You chose option 6\n");
-      flag = 0;
-      break;
+      params[0] = &first;
+      params[1] = &second;
 
+      int i;
+      for(i=0; i<2; i++)
+      {
+        int* temp = (int*) params[i];
+
+        while((*temp < 0) || (*temp > 255))
+        {
+          printf("Enter location value #%d (0-255): ",i+1);
+          if(!(fgets(buffer, sizeof(buffer), stdin)))
+          {
+              perror("Failed to read in string. Exiting.\n");
+              exit(-1);
+          }
+
+          removeNewline(buffer);
+          *temp = atoi(buffer);
+          if(!(*temp >= 0) || !(*temp <= 255))
+          {
+            printf("Illegal entry.\n");
+          }
+        }
+      }
+
+      display_aliases(first, second);
+      break;
+//==============================================================================
       case 7://save to file
       printf("You chose option 7\n");
       flag = 0;
       break;
-
+//==============================================================================
       case 8://quit
               printf("You chose option 8\n");
               flag = 0;
       break;
-
+//==============================================================================
       default: //Not an option reprompt user.
-              printf("That was not a valid option, please enter a number 1-8 to make a selection.\n");
+      printf("Invalid option, enter a number 1-8 to make a selection.\n");
       break;
     }
   }
@@ -125,6 +172,7 @@ int main()
 
 int print_menu()
 {
+  printf("\n");
   printf("1) Add address\n");
   printf("2) Lookup address\n");
   printf("3) Update address\n");
@@ -135,7 +183,7 @@ int print_menu()
   printf("8) Quit\n");
   char buffer[30];
 
-  printf("Please enter a number 1-8 to make a selection.\n");
+  printf("Please enter a number 1-8 to make a selection.\n\n");
   printf("Enter option: ");
   if(!(fgets(buffer, sizeof(buffer), stdin)))
   {
@@ -169,12 +217,14 @@ void read_in_data()
   int fourth = 0;
   char alias[11];
 
-  if(!(fgets(line_buffer, sizeof(line_buffer), fp))) //Read in first line of file.
+  //Read in first line of file.
+  if(!(fgets(line_buffer, sizeof(line_buffer), fp)))
   {
       perror("Failed to read in string. Exiting.\n");
       exit(-1);
   }
-  sscanf(line_buffer, "%d.%d.%d.%d %s", &first, &second, &third, &fourth, alias);//process first line
+  //process first line
+  sscanf(line_buffer,"%d.%d.%d.%d %s", &first, &second, &third, &fourth, alias);
 
   struct address_t* t = (struct address_t*) malloc(sizeof(struct address_t));
   if(t == NULL)
@@ -190,11 +240,11 @@ void read_in_data()
   t -> next = NULL;
   head -> next = t;
 
-
-  while(fgets(line_buffer, sizeof(line_buffer), fp)) //process the rest of the lines
+  //process the rest of the lines
+  while(fgets(line_buffer, sizeof(line_buffer), fp))
   {
-    sscanf(line_buffer, "%d.%d.%d.%d %s", &first, &second, &third, &fourth, alias);//process first line
-    struct address_t* temp = (struct address_t*) malloc(sizeof(struct address_t));
+    sscanf(line_buffer,"%d.%d.%d.%d %s",&first,&second, &third, &fourth, alias);
+    struct address_t* temp =(struct address_t*)malloc(sizeof(struct address_t));
     if(temp == NULL)
     {
       perror("Cannot allocate space for new struct exiting.");
@@ -215,10 +265,10 @@ void read_in_data()
 void print_nodes(struct address_t* head)
 {
   struct address_t* temp = head;
-  int count = 1;
+  int count = 0;
   while(temp != NULL)
   {
-    printf("Node #%d\n",count);
+    printf("Node #%d\n",count+1);
     printf("First: %d\n",temp->first);
     printf("Second: %d\n",temp->second);
     printf("Third: %d\n",temp->third);
@@ -311,19 +361,135 @@ int address_exists(int first, int second, int third, int fourth)
   return 0;
 }
 
-void update_address(char* alias, char* address)
+void lookup(char* alias)
 {
+  struct address_t* temp = head->next;
 
+  while(temp)
+  {
+    if(strcmp(temp->alias, alias) == 0)
+    {
+      printf("Address for %s: %d.%d.%d.%d\n", alias, temp->first, temp->second, temp->third, temp->fourth);
+      return;
+    }
+    temp = temp->next;
+  }
+  printf("%s does not exist.\n", alias);
+}
+
+void update_address(char* alias)
+{
+  struct address_t* temp = head->next;
+  struct address_t* edit = NULL;
+
+  while(temp)
+  {
+    if(strcmp(temp->alias, alias) == 0)
+    {
+      printf("Update Address for %s: %d.%d.%d.%d\n", alias, temp->first, temp->second, temp->third, temp->fourth);
+      edit = temp;
+    }
+    temp = temp->next;
+  }
+
+  if(edit == NULL)
+  {
+    printf("%s does not exist.\n", alias);
+    return;
+  }
+
+  char buffer[20];
+  int first = -1;
+  int second = -1;
+  int third = -1;
+  int fourth = -1;
+
+  int* params[4];
+  params[0] = &first;
+  params[1] = &second;
+  params[2] = &third;
+  params[3] = &fourth;
+
+
+  int i;
+  for(i=0; i<4; i++)
+  {
+    int* temp = (int*) params[i];
+
+    while((*temp < 0) || (*temp > 255))
+    {
+      printf("Enter location value #%d (0-255): ",i+1);
+      if(!(fgets(buffer, sizeof(buffer), stdin)))
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+
+      removeNewline(buffer);
+      *temp = atoi(buffer);
+      if(!(*temp >= 0) || !(*temp <= 255))
+      {
+        printf("Illegal entry.\n");
+      }
+    }
+  }
+  //printf("%d.%d.%d.%d\n", first, second, third, fourth);
+  if(!address_exists(first,second,third,fourth))
+  {
+    edit -> first = first;
+    edit -> second = second;
+    edit -> third = third;
+    edit -> fourth = fourth;
+    //print_nodes(head->next);
+  }
+  else
+  {
+    printf("Address already exists, discarding.\n");
+    return;
+  }
 }
 
 void delete_address(char* alias)
 {
+  struct address_t* temp = head;
+  char buffer[20];
 
+  while(temp -> next)
+  {
+    if(strcmp(temp -> next -> alias, alias) == 0)
+    {
+      printf("Delete %s %d.%d.%d.%d? (y/n)\n", alias, temp->next->first, temp->next->second, temp->next->third, temp->next->fourth);
+
+      if(!(fgets(buffer, sizeof(buffer), stdin)))
+      {
+          perror("Failed to read in string. Exiting.\n");
+          exit(-1);
+      }
+      removeNewline(buffer);
+      if(strcmp("y",buffer) == 0)
+      {
+        struct address_t* t = temp->next;
+        if(temp -> next -> next == NULL)
+        {
+          temp -> next = NULL;
+        }
+        else
+        {
+          temp -> next = temp -> next -> next;
+        }
+        free(t);
+        printf("%s deleted.\n", alias);
+        return;
+      }
+    }
+    temp = temp->next;
+  }
+  printf("%s does not exist.\n", alias);
 }
 
 void display_aliases(int first, int second)
 {
-
+  
 }
 
 void save_to_file()
