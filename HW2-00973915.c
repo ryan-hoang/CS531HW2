@@ -34,8 +34,9 @@ void delete_address(char* alias);//Delete address/alias pair from the list
 void display_aliases(int first, int second);//Show aliases that start with x.y
 void save(char* filename);//save the list to file
 int print_menu();//helper function to redisplay the menu for the user.
-void print_nodes(struct address_t* head);//
-void removeNewline(char* str);
+void print_nodes(struct address_t* head);//display all nodes
+void removeNewline(char* str);//helper function, strips newlines from input
+void cleanup();//Frees all nodes.
 //==============================================================================
 
 int main()
@@ -67,6 +68,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
 
@@ -76,6 +78,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
 
@@ -88,6 +91,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
       memcpy(alias, buffer, sizeof(alias));
@@ -100,6 +104,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
       memcpy(alias, buffer, sizeof(alias));
@@ -112,6 +117,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin))) //Read in first line of file.
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
       memcpy(alias, buffer, sizeof(alias));
@@ -138,6 +144,7 @@ int main()
           if(!(fgets(buffer, sizeof(buffer), stdin)))
           {
               perror("Failed to read in string. Exiting.\n");
+              cleanup();
               exit(-1);
           }
 
@@ -158,6 +165,7 @@ int main()
       if(!(fgets(buffer, sizeof(buffer), stdin)))
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
       removeNewline(buffer);
@@ -166,6 +174,7 @@ int main()
 //==============================================================================
       case 8://quit
               printf("Goodbye.\n");
+              cleanup();
               flag = 0;
       break;
 //==============================================================================
@@ -215,6 +224,7 @@ void read_in_data()
   if(!fp)
   {
     perror("Error while trying to read in data.");
+    cleanup();
     exit(-1);
   }
 
@@ -229,6 +239,7 @@ void read_in_data()
   if(!(fgets(line_buffer, sizeof(line_buffer), fp)))
   {
       perror("Failed to read in string. Exiting.\n");
+      cleanup();
       exit(-1);
   }
   //process first line
@@ -238,6 +249,7 @@ void read_in_data()
   if(t == NULL)
   {
     perror("Cannot allocate space for new struct exiting.");
+    cleanup();
     exit(-1);
   }
   t -> first = first;
@@ -256,6 +268,7 @@ void read_in_data()
     if(temp == NULL)
     {
       perror("Cannot allocate space for new struct exiting.");
+      cleanup();
       exit(-1);
     }
 
@@ -303,6 +316,12 @@ void add_address(char* address, char* alias)
   if(address_exists(first,second,third,fourth))
   {
     printf("%d.%d.%d.%d already exists.\n", first, second, third, fourth);
+    return;
+  }
+
+  if(!(first >= 0 && first <=255) || !(second >= 0 && second <=255) || !(third >= 0 && third <=255) || !(fourth >= 0 && fourth <=255))
+  {
+    printf("%d.%d.%d.%d is invalid all sections must be (0-255).\n", first, second, third, fourth);
     return;
   }
 
@@ -425,6 +444,7 @@ void update_address(char* alias)
       if(!(fgets(buffer, sizeof(buffer), stdin)))
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
 
@@ -466,6 +486,7 @@ void delete_address(char* alias)
       if(!(fgets(buffer, sizeof(buffer), stdin)))
       {
           perror("Failed to read in string. Exiting.\n");
+          cleanup();
           exit(-1);
       }
       removeNewline(buffer);
@@ -520,6 +541,7 @@ void save(char* filename)
   if(!fp)
   {
     perror("Could not open file.\n");
+    cleanup();
     exit(-1);
   }
 
@@ -531,4 +553,16 @@ void save(char* filename)
   }
   fclose(fp);
   printf("File saved. \n");
+}
+
+void cleanup()
+{
+  struct address_t* temp = head;
+
+  while(temp)
+  {
+    struct address_t* t = temp->next;
+    free(temp);
+    temp = t;
+  }
 }
